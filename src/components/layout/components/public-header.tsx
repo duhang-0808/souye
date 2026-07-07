@@ -254,7 +254,9 @@ export function PublicHeader(props: PublicHeaderProps) {
                 ) : shouldRenderMincWordmark ? (
                   <span
                     aria-label='MINC API'
-                    className='inline-flex items-baseline gap-[2px] text-[15px] font-black tracking-normal drop-shadow-[0_0_10px_rgba(45,212,191,0.28)]'
+                    className='notranslate inline-flex items-baseline gap-[2px] text-[15px] font-black tracking-normal drop-shadow-[0_0_10px_rgba(45,212,191,0.28)]'
+                    lang='en'
+                    translate='no'
                   >
                     <span className='text-[#38bdf8]'>M</span>
                     <span className='text-[#22c55e]'>I</span>
