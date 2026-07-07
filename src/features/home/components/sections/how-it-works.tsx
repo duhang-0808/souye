@@ -16,14 +16,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Link } from '@tanstack/react-router'
 import { ArrowRight, KeyRound, Settings2, UserRoundPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
+import { useStatus } from '@/hooks/use-status'
+
+import { getHomeDeploymentConfig } from '../../lib/deployment-config'
 
 export function HowItWorks() {
   const { t } = useTranslation()
+  const { status } = useStatus()
+  const deployment = getHomeDeploymentConfig(status)
 
   const steps = [
     {
@@ -32,7 +36,7 @@ export function HowItWorks() {
       desc: t('使用邮箱创建账户，进入 New API 控制台。'),
       icon: <UserRoundPlus className='size-5' strokeWidth={1.8} />,
       cta: t('去注册'),
-      href: '/sign-up',
+      href: deployment.signUpUrl,
     },
     {
       num: '02',
@@ -40,7 +44,7 @@ export function HowItWorks() {
       desc: t('在令牌管理里新建密钥，复制后妥善保存。'),
       icon: <KeyRound className='size-5' strokeWidth={1.8} />,
       cta: t('进入控制台'),
-      href: '/dashboard',
+      href: deployment.consoleUrl,
     },
     {
       num: '03',
@@ -48,8 +52,7 @@ export function HowItWorks() {
       desc: t('把 /v1 接口地址填入客户端，选择模型后开始调用。'),
       icon: <Settings2 className='size-5' strokeWidth={1.8} />,
       cta: t('查看文档'),
-      href: 'https://mckj-home.zeabur.app/docs/',
-      external: true,
+      href: deployment.docsUrl,
     },
   ]
 
@@ -90,25 +93,13 @@ export function HowItWorks() {
               <p className='text-muted-foreground mt-2 min-h-[3rem] text-sm leading-6'>
                 {step.desc}
               </p>
-              {step.external ? (
-                <a
-                  href={step.href}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-foreground mt-5 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-sky-600'
-                >
-                  {step.cta}
-                  <ArrowRight className='size-4' />
-                </a>
-              ) : (
-                <Link
-                  to={step.href}
-                  className='text-foreground mt-5 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-sky-600'
-                >
-                  {step.cta}
-                  <ArrowRight className='size-4' />
-                </Link>
-              )}
+              <a
+                href={step.href}
+                className='text-foreground mt-5 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-sky-600'
+              >
+                {step.cta}
+                <ArrowRight className='size-4' />
+              </a>
             </AnimateInView>
           ))}
         </div>

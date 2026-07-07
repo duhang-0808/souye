@@ -37,3 +37,7 @@ export interface HomePageContentResult {
   isLoaded: boolean
   isUrl: boolean
 }
+
+export interface HomePageContentOptions {
+  enabled?: boolean
+}

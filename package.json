@@ -1,5 +1,5 @@
 {
-  "name": "souye",
+  "name": "newapi-web",
   "version": "1.0.0",
   "private": false,
   "type": "module",
@@ -108,6 +108,5 @@
     "postcss": "8.5.15",
     "qs": "6.15.2",
     "uuid": "14.0.0"
-  },
-  "packageManager": "pnpm@11.7.0"
+  }
 }

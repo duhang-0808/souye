@@ -19,13 +19,13 @@ For commercial licensing, please contact support@quantumnous.com
 import { useTranslation } from 'react-i18next'
 
 import { PublicLayout } from '@/components/layout'
-import { Footer } from '@/components/layout/components/footer'
 import { RichContent } from '@/components/rich-content'
 import { isLikelyHtml } from '@/lib/content-format'
 import { useAuthStore } from '@/stores/auth-store'
 
 import { CTA, Features, Hero, HowItWorks, Stats } from './components'
 import { useHomePageContent } from './hooks'
+import { getHomeDeploymentConfig } from './lib/deployment-config'
 
 const MINC_HEADER_PROPS = {
   brandVariant: 'showcase' as const,
@@ -45,11 +45,15 @@ export function Home() {
   const { t } = useTranslation()
   const { auth } = useAuthStore()
   const isAuthenticated = !!auth.user
-  const { content, isLoaded, isUrl } = useHomePageContent()
+  const deployment = getHomeDeploymentConfig(null)
+  const { content, isLoaded, isUrl } = useHomePageContent({
+    enabled: !deployment.embed,
+  })
 
-  if (!isLoaded) {
+  if (!deployment.embed && !isLoaded) {
     return (
       <PublicLayout
+        showHeader={!deployment.embed}
         showMainContainer={false}
         siteName='MINC API'
         headerProps={MINC_HEADER_PROPS}
@@ -61,10 +65,11 @@ export function Home() {
     )
   }
 
-  if (content && !isLegacyMincHomeUrl(content)) {
+  if (!deployment.embed && content && !isLegacyMincHomeUrl(content)) {
     if (isUrl) {
       return (
         <PublicLayout
+          showHeader={!deployment.embed}
           showMainContainer={false}
           siteName='MINC API'
           headerProps={MINC_HEADER_PROPS}
@@ -73,7 +78,7 @@ export function Home() {
             src={content}
             className='h-screen w-full border-none'
             title={t('Custom Home Page')}
-            sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts'
+            sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation-by-user-activation'
           />
         </PublicLayout>
       )
@@ -84,6 +89,7 @@ export function Home() {
     if (contentIsHtml) {
       return (
         <PublicLayout
+          showHeader={!deployment.embed}
           showMainContainer={false}
           siteName='MINC API'
           headerProps={MINC_HEADER_PROPS}
@@ -99,7 +105,11 @@ export function Home() {
     }
 
     return (
-      <PublicLayout siteName='MINC API' headerProps={MINC_HEADER_PROPS}>
+      <PublicLayout
+        showHeader={!deployment.embed}
+        siteName='MINC API'
+        headerProps={MINC_HEADER_PROPS}
+      >
         <div className='mx-auto max-w-6xl px-4 py-8'>
           <RichContent
             mode='markdown'
@@ -113,6 +123,7 @@ export function Home() {
 
   return (
     <PublicLayout
+      showHeader={!deployment.embed}
       showMainContainer={false}
       siteName='MINC API'
       headerProps={MINC_HEADER_PROPS}
@@ -123,7 +134,6 @@ export function Home() {
         <Features />
         <HowItWorks />
         <CTA isAuthenticated={isAuthenticated} />
-        <Footer />
       </div>
     </PublicLayout>
   )

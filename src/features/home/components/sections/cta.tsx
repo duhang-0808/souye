@@ -16,13 +16,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Link } from '@tanstack/react-router'
 import { ArrowRight, BookOpen, TerminalSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
 import { Button } from '@/components/ui/button'
 import { useStatus } from '@/hooks/use-status'
+
+import { getHomeDeploymentConfig } from '../../lib/deployment-config'
 
 interface CTAProps {
   className?: string
@@ -32,9 +33,7 @@ interface CTAProps {
 export function CTA(props: CTAProps) {
   const { t } = useTranslation()
   const { status } = useStatus()
-  const docsUrl =
-    (status?.docs_link as string | undefined) ||
-    'https://mckj-home.zeabur.app/docs/'
+  const deployment = getHomeDeploymentConfig(status)
 
   return (
     <section className='relative z-10 px-6 py-20 md:py-24'>
@@ -48,7 +47,7 @@ export function CTA(props: CTAProps) {
               <TerminalSquare className='size-4 text-emerald-500' />
               <span>{t('Base URL')}</span>
               <code className='text-foreground font-mono'>
-                https://mckj.zeabur.app/v1
+                {deployment.apiBaseUrl}
               </code>
             </div>
             <h2 className='max-w-2xl text-2xl leading-tight font-semibold md:text-4xl'>
@@ -69,7 +68,7 @@ export function CTA(props: CTAProps) {
               {props.isAuthenticated ? (
                 <Button
                   className='group rounded-lg'
-                  render={<Link to='/dashboard' />}
+                  render={<a href={deployment.consoleUrl} />}
                 >
                   {t('进入控制台')}
                   <ArrowRight className='ml-2 size-4 transition-transform group-hover:translate-x-0.5' />
@@ -78,7 +77,7 @@ export function CTA(props: CTAProps) {
                 <>
                   <Button
                     className='group rounded-lg'
-                    render={<Link to='/sign-up' />}
+                    render={<a href={deployment.signUpUrl} />}
                   >
                     {t('立即注册')}
                     <ArrowRight className='ml-2 size-4 transition-transform group-hover:translate-x-0.5' />
@@ -86,7 +85,7 @@ export function CTA(props: CTAProps) {
                   <Button
                     variant='outline'
                     className='rounded-lg'
-                    render={<Link to='/sign-in' />}
+                    render={<a href={deployment.signInUrl} />}
                   >
                     {t('登录')}
                   </Button>
@@ -96,7 +95,11 @@ export function CTA(props: CTAProps) {
                 variant='outline'
                 className='rounded-lg'
                 render={
-                  <a href={docsUrl} target='_blank' rel='noopener noreferrer' />
+                  <a
+                    href={deployment.docsUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  />
                 }
               >
                 <BookOpen className='mr-2 size-4' />

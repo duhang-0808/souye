@@ -16,15 +16,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Link } from '@tanstack/react-router'
 import {
   BookOpen,
   Check,
   CheckCircle2,
   ClipboardCopy,
   Cpu,
-  KeyRound,
-  LockKeyhole,
   Network,
   ShieldCheck,
 } from 'lucide-react'
@@ -34,31 +31,15 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useStatus } from '@/hooks/use-status'
 
+import { getHomeDeploymentConfig } from '../../lib/deployment-config'
+
 interface HeroProps {
   className?: string
   isAuthenticated?: boolean
 }
 
-const FALLBACK_SERVER_ADDRESS = 'https://mckj.zeabur.app'
-const LOGO_URL = 'https://mckj-home.zeabur.app/logo.svg?v=20260605-2'
 const TECH_VIDEO_URL =
   'https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4'
-
-function normalizeServerAddress(status: unknown) {
-  const record = status as Record<string, unknown> | null
-  const nested = record?.data as Record<string, unknown> | undefined
-  const raw =
-    record?.server_address ??
-    record?.serverAddress ??
-    nested?.server_address ??
-    nested?.serverAddress
-
-  if (typeof raw === 'string' && raw.trim()) {
-    return raw.trim().replace(/\/+$/, '')
-  }
-
-  return FALLBACK_SERVER_ADDRESS
-}
 
 async function copyText(text: string) {
   if (window.navigator.clipboard && window.isSecureContext) {
@@ -86,16 +67,14 @@ export function Hero(props: HeroProps) {
   const { status } = useStatus()
   const [copied, setCopied] = useState(false)
 
-  const serverAddress = normalizeServerAddress(status)
-  const baseUrl = `${serverAddress}/v1`
-  const consoleUrl = props.isAuthenticated ? '/dashboard' : '/sign-in'
-  const docsUrl =
-    (status?.docs_link as string | undefined) ||
-    'https://mckj-home.zeabur.app/docs/'
+  const deployment = getHomeDeploymentConfig(status)
+  const consoleUrl = props.isAuthenticated
+    ? deployment.consoleUrl
+    : deployment.signInUrl
 
   const handleCopy = async () => {
     try {
-      await copyText(baseUrl)
+      await copyText(deployment.apiBaseUrl)
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1600)
     } catch {
@@ -135,7 +114,7 @@ export function Hero(props: HeroProps) {
           >
             <span className='flex size-16 items-center justify-center rounded-lg border border-cyan-400/25 bg-cyan-400/10 shadow-[0_0_28px_rgba(34,211,238,0.22)]'>
               <img
-                src={LOGO_URL}
+                src={deployment.logoUrl}
                 alt='MinC'
                 className='size-12 rounded-md object-contain'
               />
@@ -274,8 +253,8 @@ export function Hero(props: HeroProps) {
             ))}
           </svg>
           <div className='absolute inset-[36%] rounded-full border border-cyan-200/20 bg-cyan-200/[0.03] shadow-[0_0_40px_rgba(34,211,238,0.2)]' />
-          <Link
-            to={consoleUrl}
+          <a
+            href={consoleUrl}
             aria-label={t('控制台')}
             className='pointer-events-auto absolute top-1/2 left-1/2 flex size-32 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-1 rounded-full border border-cyan-100/35 bg-slate-950/60 text-cyan-100 shadow-[0_0_70px_rgba(34,211,238,0.32),inset_0_0_34px_rgba(34,211,238,0.1)] backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-cyan-100/60 hover:bg-cyan-400/10 hover:shadow-[0_0_86px_rgba(34,211,238,0.42),inset_0_0_38px_rgba(34,211,238,0.16)] focus-visible:ring-2 focus-visible:ring-cyan-200/70 focus-visible:outline-none'
           >
@@ -285,7 +264,7 @@ export function Hero(props: HeroProps) {
             <span className='relative translate-x-0.5 text-center text-xs font-semibold tracking-normal'>
               {t('控制台')}
             </span>
-          </Link>
+          </a>
           <div className='absolute top-[24%] left-[13%] rounded-md border border-cyan-200/20 bg-slate-950/45 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.18em] text-cyan-100/70 shadow-[0_0_24px_rgba(34,211,238,0.12)] backdrop-blur'>
             API
           </div>
@@ -314,7 +293,7 @@ export function Hero(props: HeroProps) {
                 <span>{t('Base URL')}</span>
               </div>
               <code className='block truncate font-mono text-sm font-semibold text-white'>
-                {baseUrl}
+                {deployment.apiBaseUrl}
               </code>
             </div>
 
@@ -335,14 +314,14 @@ export function Hero(props: HeroProps) {
               <div className='grid grid-cols-2 gap-3'>
                 <Button
                   className='h-12 rounded-lg border border-cyan-300/25 bg-cyan-400/15 text-sm font-semibold text-cyan-100 hover:bg-cyan-400/20'
-                  render={<Link to='/sign-up' />}
+                  render={<a href={deployment.signUpUrl} />}
                 >
                   {t('创建账号')}
                 </Button>
                 <Button
                   variant='outline'
                   className='h-12 rounded-lg border-white/15 bg-white/5 text-sm font-semibold text-slate-100 hover:bg-white/10'
-                  render={<Link to='/sign-in' />}
+                  render={<a href={deployment.signInUrl} />}
                 >
                   {t('登录')}
                 </Button>
@@ -353,17 +332,16 @@ export function Hero(props: HeroProps) {
               variant='ghost'
               className='h-11 w-full rounded-lg text-slate-300 hover:bg-white/8 hover:text-white'
               render={
-                <a href={docsUrl} target='_blank' rel='noopener noreferrer' />
+                <a
+                  href={deployment.docsUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                />
               }
             >
               <BookOpen className='mr-2 size-4' />
               {t('查看接入文档')}
             </Button>
-          </div>
-
-          <div className='mt-8 flex items-center justify-center gap-2 text-xs text-slate-400'>
-            <LockKeyhole className='size-4 text-cyan-300' />
-            <span>{t('OpenAI 兼容 · New API 控制台')}</span>
           </div>
         </div>
       </div>

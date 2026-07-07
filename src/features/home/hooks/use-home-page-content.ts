@@ -23,7 +23,7 @@ import { toast } from 'sonner'
 import { isHttpUrl } from '@/lib/content-format'
 
 import { getHomePageContent } from '../api'
-import type { HomePageContentResult } from '../types'
+import type { HomePageContentOptions, HomePageContentResult } from '../types'
 
 const STORAGE_KEY = 'home_page_content'
 
@@ -31,11 +31,20 @@ const STORAGE_KEY = 'home_page_content'
  * Hook to load and manage custom home page content
  * Supports both Markdown/HTML content and iframe URLs
  */
-export function useHomePageContent(): HomePageContentResult {
+export function useHomePageContent(
+  options: HomePageContentOptions = {}
+): HomePageContentResult {
+  const { enabled = true } = options
   const [content, setContent] = useState<string>('')
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(!enabled)
 
   useEffect(() => {
+    if (!enabled) {
+      setContent('')
+      setIsLoaded(true)
+      return
+    }
+
     let mounted = true
 
     const loadContent = async () => {
@@ -76,7 +85,7 @@ export function useHomePageContent(): HomePageContentResult {
     return () => {
       mounted = false
     }
-  }, [])
+  }, [enabled])
 
   const isUrl = isHttpUrl(content)
 
